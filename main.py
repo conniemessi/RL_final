@@ -9,6 +9,8 @@ from sklearn.preprocessing import OneHotEncoder
 import matplotlib.pyplot as plt
 from validation import MedicalGuidelineValidator, ValidationMetrics
 from create_dataset import create_toy_dataset
+import seaborn as sns
+
 
 class MedicalKnowledgeGraph:
     def __init__(self):
@@ -113,6 +115,33 @@ class DiagnosisAgent:
         
         return reward
 
+
+def visualize_attention_scores(attention_weights, available_actions, step):
+    """
+    Visualize attention scores for each decision step
+    """
+    
+    plt.figure(figsize=(10, 4))
+    attention = attention_weights.detach().squeeze().numpy()
+    
+    # Create attention score visualization
+    ax = sns.barplot(
+        x=list(range(len(available_actions))),
+        y=attention,
+        palette='YlOrRd'
+    )
+    
+    # Add value labels on top of each bar
+    for i, v in enumerate(attention):
+        ax.text(i, v, f'{v:.3f}', ha='center', va='bottom')
+    
+    plt.title(f'Attention Scores at Step {step}')
+    plt.xlabel('Available Actions')
+    plt.ylabel('Attention Weight')
+    plt.tight_layout()
+    plt.show()
+
+
 def train_episode(agent, initial_symptoms, target_diagnosis, human_path, max_path_length):
     # Get valid node indices
     valid_nodes = list(agent.knowledge_graph.graph.nodes())
@@ -120,10 +149,18 @@ def train_episode(agent, initial_symptoms, target_diagnosis, human_path, max_pat
     state = torch.tensor(initial_symptoms, dtype=torch.float)
     path = []
     log_probs = []
+    attention_scores = []  # Store attention weights
     
-    while len(path) < max_path_length:
+    for step in range(max_path_length):
         available_actions = get_available_actions(agent.knowledge_graph, state)
-        action, log_prob, attention = agent.get_action(state, available_actions)
+        action, log_prob, attention_weights = agent.get_action(state, available_actions)
+        attention_scores.append({
+            'step': step,
+            'weights': attention_weights,
+            'available_actions': available_actions,
+            'selected_action': action.item(),
+            'target_action': human_path[step] if step < len(human_path) else None
+        })
         
         # Convert action to valid node index
         action_idx = action.item() % len(valid_nodes)
@@ -144,7 +181,7 @@ def train_episode(agent, initial_symptoms, target_diagnosis, human_path, max_pat
     rewards = [reward] * len(log_probs)
     
     agent.update_policy(rewards, log_probs)
-    return path, reward, path_similarity
+    return path, reward, path_similarity, attention_scores
 
 # Create knowledge graph from dataset
 def create_knowledge_graph_from_data(df, symptoms, diagnoses):
@@ -397,7 +434,7 @@ def main():
         human_path.append(len(symptoms) + diagnoses.index(case['diagnosis']))
         
         # Train episode
-        path, reward, similarity = train_episode(
+        path, reward, similarity, attention_scores = train_episode(
             agent=agent,
             initial_symptoms=initial_symptoms,
             target_diagnosis=case['diagnosis'],
@@ -412,7 +449,18 @@ def main():
             print("Human Path:", human_path)
             print("Agent Path:", path)
             visualize_paths_comparison(kg, path, human_path, symptoms, diagnoses)
-        
+
+            for attn in attention_scores:
+                print(f"\nStep {attn['step']}:")
+                print(f"Selected action: {attn['selected_action']}")
+                print(f"Target action: {attn['target_action']}")
+                visualize_attention_scores(
+                    attn['weights'],
+                    attn['available_actions'],
+                    attn['step']
+                )
+
+        # Validate every 200 episodes
         # Validate every 200 episodes
         # if episode % 200 == 0:
         #     print("\nRunning validation...")
