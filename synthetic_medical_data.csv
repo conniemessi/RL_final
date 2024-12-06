@@ -1,101 +1,101 @@
 symptoms,diagnosis
-"['fever', 'cough', 'fatigue', 'headache']",covid19
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
-"['nausea', 'abdominal_pain', 'fatigue']",gastroenteritis
-"['chest_pain', 'shortness_of_breath']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'headache']",covid19
-"['fever', 'cough', 'fatigue']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['chest_pain', 'shortness_of_breath']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['nausea', 'abdominal_pain']",gastroenteritis
-"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
-"['cough', 'fatigue']",bronchitis
-"['fever', 'cough', 'fatigue']",covid19
-"['nausea', 'abdominal_pain', 'fatigue', 'fever']",gastroenteritis
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
-"['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
-"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
 "['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
 "['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
-"['cough', 'fatigue', 'fever']",bronchitis
-"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
+"['chest_pain', 'shortness_of_breath']",myocardial_infarction
 "['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
 "['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
+"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
 "['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
 "['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
+"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
 "['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
 "['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
+"['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
+"['fever', 'cough', 'shortness_of_breath']",pneumonia
 "['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
-"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
-"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
-"['cough', 'fatigue', 'fever']",bronchitis
-"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
 "['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
-"['nausea', 'abdominal_pain', 'fatigue', 'fever']",gastroenteritis
 "['cough', 'fatigue', 'fever']",bronchitis
+"['nausea', 'abdominal_pain', 'fatigue', 'fever']",gastroenteritis
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
+"['fever', 'cough', 'fatigue']",covid19
 "['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
+"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
+"['fever', 'cough', 'fatigue', 'headache']",covid19
+"['fever', 'cough', 'fatigue', 'headache']",covid19
+"['chest_pain', 'shortness_of_breath']",myocardial_infarction
+"['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
 "['fever', 'cough', 'shortness_of_breath']",pneumonia
 "['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
-"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
-"['nausea', 'abdominal_pain']",gastroenteritis
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
-"['chest_pain', 'shortness_of_breath']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
 "['fever', 'cough', 'fatigue']",covid19
-"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
+"['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
+"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
+"['cough', 'fatigue']",bronchitis
+"['fever', 'cough', 'fatigue']",covid19
+"['fever', 'cough', 'fatigue', 'headache']",covid19
+"['chest_pain', 'shortness_of_breath']",myocardial_infarction
+"['cough', 'fatigue', 'fever']",bronchitis
+"['cough', 'fatigue']",bronchitis
 "['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
 "['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
-"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
-"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
 "['chest_pain', 'shortness_of_breath']",myocardial_infarction
 "['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'headache']",covid19
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
 "['cough', 'fatigue', 'fever']",bronchitis
 "['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
-"['cough', 'fatigue', 'fever', 'shortness_of_breath']",bronchitis
-"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
+"['cough', 'fatigue']",bronchitis
+"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['cough', 'fatigue']",bronchitis
 "['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
-"['fever', 'cough', 'fatigue']",covid19
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['cough', 'fatigue', 'fever']",bronchitis
+"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['chest_pain', 'shortness_of_breath']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'shortness_of_breath', 'headache']",covid19
+"['chest_pain', 'shortness_of_breath', 'nausea']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain', 'fatigue']",pneumonia
+"['nausea', 'abdominal_pain']",gastroenteritis
+"['nausea', 'abdominal_pain']",gastroenteritis
+"['cough', 'fatigue']",bronchitis
+"['fever', 'cough', 'shortness_of_breath', 'chest_pain']",pneumonia
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['fever', 'cough', 'shortness_of_breath', 'fatigue']",pneumonia
+"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
+"['chest_pain', 'shortness_of_breath']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'headache']",covid19
+"['cough', 'fatigue', 'shortness_of_breath']",bronchitis
+"['chest_pain', 'shortness_of_breath', 'fatigue']",myocardial_infarction
+"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
+"['cough', 'fatigue']",bronchitis
+"['fever', 'cough', 'fatigue', 'headache']",covid19
+"['cough', 'fatigue', 'fever']",bronchitis
+"['chest_pain', 'shortness_of_breath', 'fatigue', 'nausea']",myocardial_infarction
+"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19
+"['fever', 'cough', 'fatigue', 'shortness_of_breath']",covid19

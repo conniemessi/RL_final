@@ -114,16 +114,22 @@ class DiagnosisAgent:
         return reward
 
 def train_episode(agent, initial_symptoms, target_diagnosis, human_path, max_path_length):
+    # Get valid node indices
+    valid_nodes = list(agent.knowledge_graph.graph.nodes())
+    
     state = torch.tensor(initial_symptoms, dtype=torch.float)
     path = []
     log_probs = []
-    rewards = []
     
     while len(path) < max_path_length:
         available_actions = get_available_actions(agent.knowledge_graph, state)
         action, log_prob, attention = agent.get_action(state, available_actions)
         
-        path.append(action.item())
+        # Convert action to valid node index
+        action_idx = action.item() % len(valid_nodes)
+        node_id = valid_nodes[action_idx]
+        
+        path.append(node_id)
         log_probs.append(log_prob)
         
         if is_terminal_state(action, target_diagnosis):
@@ -131,48 +137,43 @@ def train_episode(agent, initial_symptoms, target_diagnosis, human_path, max_pat
             
         state = get_next_state(action)
     
+    # Calculate similarity with human path
+    path_similarity = len(set(path).intersection(set(human_path))) / len(human_path)
+    
     reward = agent.compute_reward(path, target_diagnosis, human_path)
-    rewards = [reward] * len(log_probs)  # Distribute reward across all actions
+    rewards = [reward] * len(log_probs)
     
     agent.update_policy(rewards, log_probs)
-    return path, reward
+    return path, reward, path_similarity
 
 # Create knowledge graph from dataset
 def create_knowledge_graph_from_data(df, symptoms, diagnoses):
     kg = MedicalKnowledgeGraph()
     
-    # Add symptom nodes
-    embedding_dim = 64
-    for symptom in symptoms:
-        # Create random embedding for symptom
-        embedding = torch.randn(embedding_dim)
-        kg.add_node(symptom, embedding)
+    # Add nodes with sequential IDs
+    for i, symptom in enumerate(symptoms):
+        embedding = torch.randn(64)  # embedding_dim = 64
+        kg.add_node(i, embedding)  # Use index as node ID
     
-    # Add diagnosis nodes
-    for diagnosis in diagnoses:
-        # Create random embedding for diagnosis
-        embedding = torch.randn(embedding_dim)
-        kg.add_node(diagnosis, embedding)
+    # Add diagnosis nodes after symptoms
+    start_idx = len(symptoms)
+    for i, diagnosis in enumerate(diagnoses):
+        embedding = torch.randn(64)
+        kg.add_node(start_idx + i, embedding)
     
-    # Add edges based on co-occurrence in the dataset
+    # Create node ID mapping
+    node_mapping = {s: i for i, s in enumerate(symptoms)}
+    node_mapping.update({d: i + len(symptoms) for i, d in enumerate(diagnoses)})
+    
+    # Add edges using node IDs
     for _, row in df.iterrows():
-        current_symptoms = row['symptoms']
-        current_diagnosis = row['diagnosis']
+        current_symptoms = [node_mapping[s] for s in row['symptoms']]
+        current_diagnosis = node_mapping[row['diagnosis']]
         
-        # Add edges between symptoms and diagnosis
-        for symptom in current_symptoms:
-            kg.add_edge(symptom, current_diagnosis, relation='indicates')
-        
-        # Add edges between related symptoms
-        for i in range(len(current_symptoms)):
-            for j in range(i + 1, len(current_symptoms)):
-                kg.add_edge(current_symptoms[i], current_symptoms[j], relation='co-occurs')
-                kg.add_edge(current_symptoms[j], current_symptoms[i], relation='co-occurs')
+        for symptom_id in current_symptoms:
+            kg.add_edge(symptom_id, current_diagnosis, relation='indicates')
     
-    # Visualize the knowledge graph
-    visualize_knowledge_graph(kg, symptoms, diagnoses)
-    
-    return kg
+    return kg, node_mapping
 
 def visualize_knowledge_graph(kg, symptoms, diagnoses):
     plt.figure(figsize=(12, 8))
@@ -194,6 +195,21 @@ def visualize_knowledge_graph(kg, symptoms, diagnoses):
 
 # Function to visualize the knowledge graph and the learned path
 def visualize_path(kg, path, symptoms, diagnoses):
+    # Add debugging information
+    print("Graph nodes:", list(kg.graph.nodes()))
+    print("Attempting to visualize path:", path)
+    
+    # Ensure all path nodes exist in graph
+    valid_path = [node for node in path if node in kg.graph.nodes()]
+    if len(valid_path) != len(path):
+        print("Warning: Some nodes in path don't exist in graph!")
+        print("Invalid nodes:", set(path) - set(kg.graph.nodes()))
+        path = valid_path
+    
+    if len(path) < 2:
+        print("Error: Not enough valid nodes to create a path")
+        return
+        
     plt.figure(figsize=(12, 8))
     
     # Create a layout for the graph
@@ -266,21 +282,20 @@ def validate_agent(agent, validator, test_cases, n_episodes=100):
     return summary_stats
 
 def get_available_actions(knowledge_graph, state):
-    # Assuming state is a node in the graph, return its neighbors as available actions
-    current_node = state.argmax().item()  # Get the index of the current node
-    node_name = list(knowledge_graph.node_embeddings.keys())[current_node]
-    neighbors = list(knowledge_graph.graph.neighbors(node_name))
+    # Get list of all nodes
+    all_nodes = list(knowledge_graph.graph.nodes())
     
-    # Convert neighbor names to indices
-    neighbor_indices = [list(knowledge_graph.node_embeddings.keys()).index(n) for n in neighbors]
+    # Get current node index
+    current_node = state.argmax().item()
+    if current_node >= len(all_nodes):  # Safety check
+        current_node = current_node % len(all_nodes)
     
-    # Create a tensor of available actions
+    # Get valid neighbors
+    current_node_name = all_nodes[current_node]
+    neighbors = list(knowledge_graph.graph.neighbors(current_node_name))
+    
+    # Convert to tensor
     available_actions = torch.stack([knowledge_graph.node_embeddings[n] for n in neighbors])
-    
-    # Ensure available_actions has the correct embedding dimension
-    if available_actions.size(-1) != knowledge_graph.node_embeddings[node_name].size(-1):
-        # Adjust the embedding dimension if necessary
-        available_actions = available_actions.view(-1, knowledge_graph.node_embeddings[node_name].size(-1))
     
     return available_actions
 
@@ -292,15 +307,64 @@ def get_next_state(action):
     # In this simplified example, the next state is the action taken
     return action
 
+def visualize_paths_comparison(kg, agent_path, human_path, symptoms, diagnoses):
+    plt.figure(figsize=(15, 8))
+    pos = nx.spring_layout(kg.graph, seed=42)
+    
+    # Draw the full graph in light gray
+    nx.draw(kg.graph, pos, with_labels=True, node_size=500, 
+            node_color='lightgray', font_size=10, 
+            font_weight='bold', alpha=0.3)
+    
+    # Draw human path in green
+    human_edges = [(human_path[i], human_path[i+1]) 
+                   for i in range(len(human_path)-1)]
+    nx.draw_networkx_edges(kg.graph, pos, edgelist=human_edges, 
+                          edge_color='green', width=2, 
+                          label='Human Path')
+    
+    # Draw agent path in red
+    agent_edges = [(agent_path[i], agent_path[i+1]) 
+                   for i in range(len(agent_path)-1)]
+    nx.draw_networkx_edges(kg.graph, pos, edgelist=agent_edges, 
+                          edge_color='red', width=2, 
+                          label='Agent Path', style='dashed')
+    
+    # Highlight nodes
+    nx.draw_networkx_nodes(kg.graph, pos, 
+                          nodelist=[human_path[0]], 
+                          node_color='lightgreen', 
+                          node_size=700, 
+                          label='Start')
+    nx.draw_networkx_nodes(kg.graph, pos, 
+                          nodelist=[human_path[-1]], 
+                          node_color='darkgreen', 
+                          node_size=700, 
+                          label='Target Diagnosis')
+    
+    # Add legend
+    plt.legend()
+    
+    plt.title("Path Comparison: Human Expert vs Agent")
+    plt.text(0.05, -0.1, 
+            f"Human Path: {' -> '.join(map(str, human_path))}\n"
+            f"Agent Path: {' -> '.join(map(str, agent_path))}", 
+            transform=plt.gca().transAxes)
+    plt.axis('off')
+    plt.show()
+
 # Example usage and training
 def main():
     # Load or create dataset
     df, symptoms, diagnoses = create_toy_dataset()
     
-    # Create knowledge graph
-    kg = create_knowledge_graph_from_data(df, symptoms, diagnoses)
-    print("Knowledge graph created with {} nodes and {} edges".format(
-        len(kg.graph.nodes), len(kg.graph.edges)))
+    # Create knowledge graph with proper node IDs
+    kg, node_mapping = create_knowledge_graph_from_data(df, symptoms, diagnoses)
+    print(f"Knowledge graph created with {len(kg.graph.nodes)} nodes and {len(kg.graph.edges)} edges")
+    print("Node mapping:", node_mapping)
+    
+    # Visualize the initial knowledge graph structure
+    visualize_knowledge_graph(kg, symptoms, diagnoses)
     
     # Initialize agent
     embedding_dim = 64
@@ -328,11 +392,12 @@ def main():
             symptom_idx = symptoms.index(symptom)
             initial_symptoms[symptom_idx] = 1
         
-        # Create simplified human path (just for demonstration)
-        human_path = case['symptoms'] + [case['diagnosis']]
+        # Create human path (expert demonstration)
+        human_path = [symptoms.index(s) for s in case['symptoms']]
+        human_path.append(len(symptoms) + diagnoses.index(case['diagnosis']))
         
         # Train episode
-        path, reward = train_episode(
+        path, reward, similarity = train_episode(
             agent=agent,
             initial_symptoms=initial_symptoms,
             target_diagnosis=case['diagnosis'],
@@ -341,11 +406,12 @@ def main():
         )
         
         if episode % 100 == 0:
-            print(f"Episode {episode}, Reward: {reward:.2f}")
-            print(f"Path: {path}")
-            
-            # Uncomment this line to visualize
-            # visualize_path(kg, path, symptoms, diagnoses)
+            print(f"\nEpisode {episode}")
+            print(f"Reward: {reward:.2f}")
+            print(f"Path Similarity: {similarity:.2f}")
+            print("Human Path:", human_path)
+            print("Agent Path:", path)
+            visualize_paths_comparison(kg, path, human_path, symptoms, diagnoses)
         
         # Validate every 200 episodes
         # if episode % 200 == 0:
