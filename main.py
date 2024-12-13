@@ -83,8 +83,16 @@ class DiagnosisAgent:
         
     def get_action(self, state, available_actions):
         action_probs, attention_weights = self.policy(state, available_actions)
-        action_dist = torch.distributions.Categorical(action_probs)
-        action = action_dist.sample()
+        
+        # Create distribution only over available actions
+        action_dist = torch.distributions.Categorical(action_probs[:len(available_actions)])
+        
+        # Sample action index within the range of available actions
+        action_idx = action_dist.sample()
+        
+        # Ensure action index is within bounds
+        action = action_idx % len(available_actions)  # This ensures we get a valid index
+        
         return action, action_dist.log_prob(action), attention_weights
     
     def update_policy(self, rewards, log_probs):
@@ -143,30 +151,28 @@ def visualize_attention_scores(attention_weights, available_actions, step):
 
 
 def train_episode(agent, initial_symptoms, target_diagnosis, human_path, max_path_length):
-    # Get valid node indices
-    valid_nodes = list(agent.knowledge_graph.graph.nodes())
-    
     state = torch.tensor(initial_symptoms, dtype=torch.float)
     path = []
     log_probs = []
-    attention_scores = []  # Store attention weights
+    attention_scores = []
     
     for step in range(max_path_length):
-        available_actions = get_available_actions(agent.knowledge_graph, state)
+        # Get available actions and their IDs
+        available_actions, available_node_ids = get_available_actions(agent.knowledge_graph, state)
         action, log_prob, attention_weights = agent.get_action(state, available_actions)
+        
+        # Convert action index to actual node ID
+        selected_node_id = available_node_ids[action.item()]
+        
         attention_scores.append({
             'step': step,
             'weights': attention_weights,
-            'available_actions': available_actions,
-            'selected_action': action.item(),
+            'available_actions': available_node_ids,  # Store actual node IDs
+            'selected_action': selected_node_id,
             'target_action': human_path[step] if step < len(human_path) else None
         })
         
-        # Convert action to valid node index
-        action_idx = action.item() % len(valid_nodes)
-        node_id = valid_nodes[action_idx]
-        
-        path.append(node_id)
+        path.append(selected_node_id)
         log_probs.append(log_prob)
         
         if is_terminal_state(action, target_diagnosis):
@@ -324,17 +330,21 @@ def get_available_actions(knowledge_graph, state):
     
     # Get current node index
     current_node = state.argmax().item()
-    if current_node >= len(all_nodes):  # Safety check
+    if current_node >= len(all_nodes):
         current_node = current_node % len(all_nodes)
     
     # Get valid neighbors
     current_node_name = all_nodes[current_node]
     neighbors = list(knowledge_graph.graph.neighbors(current_node_name))
     
-    # Convert to tensor
-    available_actions = torch.stack([knowledge_graph.node_embeddings[n] for n in neighbors])
+    # Convert to tensor and store node IDs
+    available_actions = []
+    available_node_ids = []  # Store the actual node IDs
+    for n in neighbors:
+        available_actions.append(knowledge_graph.node_embeddings[n])
+        available_node_ids.append(n)
     
-    return available_actions
+    return torch.stack(available_actions), available_node_ids
 
 def is_terminal_state(action, target_diagnosis):
     # Check if the action corresponds to the target diagnosis
@@ -389,6 +399,40 @@ def visualize_paths_comparison(kg, agent_path, human_path, symptoms, diagnoses):
             transform=plt.gca().transAxes)
     plt.axis('off')
     plt.show()
+
+
+def analyze_attention_pattern(attention_scores, human_path):
+    """
+    Analyze attention patterns and their alignment with human decisions
+    """
+    total_steps = len(attention_scores)
+    correct_attention = 0
+    
+    print("\nDetailed Attention Analysis:")
+    for attn in attention_scores:
+        step = attn['step']
+        weights = attn['weights'].detach().squeeze().numpy()
+        selected = attn['selected_action']
+        target = attn['target_action']
+        
+        print(f"\nStep {step}:")
+        print(f"Attention distribution:")
+        for i, w in enumerate(weights):
+            print(f"  Node {i}: {w:.3f}")
+        
+        if target is not None:
+            print(f"Selected node: {selected}")
+            print(f"Target node: {target}")
+            if selected == target:
+                correct_attention += 1
+                print("✓ Correct attention")
+            else:
+                print("✗ Incorrect attention")
+    
+    accuracy = correct_attention / total_steps
+    print(f"\nOverall attention accuracy: {accuracy:.2f}")
+    
+    return accuracy
 
 # Example usage and training
 def main():
@@ -452,14 +496,15 @@ def main():
 
             for attn in attention_scores:
                 print(f"\nStep {attn['step']}:")
-                print(f"Selected action: {attn['selected_action']}")
-                print(f"Target action: {attn['target_action']}")
+                print(f"Selected node: {attn['selected_action']}")
+                print(f"Target node: {attn['target_action']}")
                 visualize_attention_scores(
                     attn['weights'],
                     attn['available_actions'],
                     attn['step']
                 )
 
+            accuracy = analyze_attention_pattern(attention_scores, human_path)
         # Validate every 200 episodes
         # Validate every 200 episodes
         # if episode % 200 == 0:
