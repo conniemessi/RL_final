@@ -24,11 +24,11 @@ This project implements an attention-based inverse reinforcement learning approa
 - Seaborn
 
 ## Running the code
-- Train using IRL approach
+- Train using IRL approach:
 python inverse_rl_main.py
 
-- Train using policy gradient approach
+- Train using policy gradient approach:
 python policy_gradient_main.py
 
-- Create new dataset
+- Create new dataset:
 python create_dataset.py
