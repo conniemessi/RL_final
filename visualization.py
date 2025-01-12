@@ -21,7 +21,7 @@ class VisualizationManager:
         self.episodes = []
         
         # Setup plots
-        plt.style.use('seaborn')
+        plt.style.use('seaborn-v0_8-darkgrid')
         self.setup_plots()
         
         # Initialize the graph for path visualization

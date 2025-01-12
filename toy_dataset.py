@@ -1,86 +1,81 @@
 import json
+import random
 
 # Define the symptom and disease sets
 symptom_set = ['fever', 'cough', 'headache', 'fatigue', 'nausea']
 disease_set = ['Common Cold', 'Flu', 'Migraine', 'Gastroenteritis']
 
-# Define diagnosis rules
+# Define diagnosis rules where each disease has multiple symptom combination rules
 diagnosis_rules = {
-    'Common Cold': ['cough', 'fever'],
-    'Flu': ['fever', 'cough', 'fatigue'],
-    'Migraine': ['headache', 'nausea'],
-    'Gastroenteritis': ['nausea', 'fatigue']
+    'Common Cold': [
+        ['cough'],                    # Rule 1: just cough
+        ['cough', 'fever'],           # Rule 2: cough + fever
+        ['cough', 'fatigue'],         # Rule 3: cough + fatigue
+        ['cough', 'fever', 'fatigue'] # Rule 4: all three symptoms
+    ],
+    'Flu': [
+        ['fever', 'cough', 'fatigue'],     # Rule 1: classic presentation
+        ['fever', 'fatigue'],              # Rule 2: without cough
+        ['fever', 'cough', 'headache'],    # Rule 3: with headache
+        ['fever', 'cough', 'fatigue', 'headache']  # Rule 4: severe case
+    ],
+    'Migraine': [
+        ['headache'],                 # Rule 1: just headache
+        ['headache', 'nausea'],       # Rule 2: with nausea
+        ['headache', 'fatigue'],      # Rule 3: with fatigue
+        ['headache', 'nausea', 'fatigue']  # Rule 4: severe case
+    ],
+    'Gastroenteritis': [
+        ['nausea'],                   # Rule 1: just nausea
+        ['nausea', 'fatigue'],        # Rule 2: with fatigue
+        ['nausea', 'fever'],          # Rule 3: with fever
+        ['nausea', 'fatigue', 'fever']  # Rule 4: severe case
+    ]
 }
-
-# rule_set: knowledge base complete rules
-# knowedge_region: subset of rules (fixed for an agent), latent variable, need to learn
 
 # Mapping diseases to their index for label encoding
 disease_to_index = {disease: idx for idx, disease in enumerate(disease_set)}
 
-# Create the dataset
-toy_dataset = [
-    # Common Cold Cases
+# Create dataset based on these multiple rules
+toy_dataset = []
+
+# Helper function to convert symptom list to binary vector
+def symptoms_to_vector(symptoms):
+    return [1 if sym in symptoms else 0 for sym in symptom_set]
+
+# Generate cases for each disease and each rule
+for disease in disease_set:
+    for rule in diagnosis_rules[disease]:
+        # Create two cases for each rule
+        for _ in range(2):
+            toy_dataset.append({
+                'symptoms': symptoms_to_vector(rule),
+                'disease': disease_to_index[disease]
+            })
+
+# Add some complex/overlapping cases
+complex_cases = [
     {
-        'symptoms': [1, 1, 0, 0, 0],  # fever, cough
-        'disease': disease_to_index['Common Cold']
+        'symptoms': symptoms_to_vector(['fever', 'cough', 'headache', 'fatigue', 'nausea']),
+        'disease': disease_to_index['Flu']  # Full symptom set - classified as Flu
     },
     {
-        'symptoms': [1, 1, 0, 0, 0],
-        'disease': disease_to_index['Common Cold']
-    },
-    
-    # Flu Cases
-    {
-        'symptoms': [1, 1, 0, 1, 0],  # fever, cough, fatigue
-        'disease': disease_to_index['Flu']
+        'symptoms': symptoms_to_vector(['fever', 'headache', 'nausea']),
+        'disease': disease_to_index['Migraine']  # Could be Flu or Migraine - classified as Migraine
     },
     {
-        'symptoms': [1, 1, 0, 1, 0],
-        'disease': disease_to_index['Flu']
-    },
-    
-    # Migraine Cases
-    {
-        'symptoms': [0, 0, 1, 0, 1],  # headache, nausea
-        'disease': disease_to_index['Migraine']
-    },
-    {
-        'symptoms': [0, 0, 1, 0, 1],
-        'disease': disease_to_index['Migraine']
-    },
-    
-    # Gastroenteritis Cases
-    {
-        'symptoms': [0, 0, 0, 1, 1],  # fatigue, nausea
-        'disease': disease_to_index['Gastroenteritis']
-    },
-    {
-        'symptoms': [0, 0, 0, 1, 1],
-        'disease': disease_to_index['Gastroenteritis']
-    },
-    
-    # Mixed/Overlapping Cases
-    {
-        'symptoms': [1, 1, 1, 1, 1],  # All symptoms
-        'disease': disease_to_index['Flu']  # Prioritize Flu in case of overlap
-    },
-    {
-        'symptoms': [1, 0, 1, 0, 1],  # fever, headache, nausea
-        'disease': disease_to_index['Migraine']
-    },
-    {
-        'symptoms': [0, 1, 0, 1, 1],  # cough, fatigue, nausea
-        'disease': disease_to_index['Gastroenteritis']
-    },
-    {
-        'symptoms': [1, 1, 1, 0, 0],  # fever, cough, headache
-        'disease': disease_to_index['Common Cold']
+        'symptoms': symptoms_to_vector(['cough', 'fatigue', 'nausea']),
+        'disease': disease_to_index['Gastroenteritis']  # Mixed symptoms
     }
 ]
+
+toy_dataset.extend(complex_cases)
+
+# Shuffle the dataset
+random.shuffle(toy_dataset)
 
 # Save to JSON file
 with open('toy_dataset.json', 'w') as f:
     json.dump(toy_dataset, f, indent=4)
 
-print("Toy dataset created and saved to toy_dataset.json") 
+print("Enhanced toy dataset with multiple rules per disease created and saved to toy_dataset.json") 

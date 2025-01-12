@@ -5,23 +5,24 @@ from reasoning_agent import ReasoningAgent
 from environment import DiagnosisEnvironment
 from training import train_two_stage_rl
 from torch.optim.lr_scheduler import LambdaLR
+from training_dataset import symptom_set, disease_set, diagnosis_rules
 
 def main():
     # ----------------------------
     # 1. Environment Setup
     # ----------------------------
-    symptom_set = ['fever', 'cough', 'headache', 'fatigue', 'nausea']
-    disease_set = ['Common Cold', 'Flu', 'Migraine', 'Gastroenteritis']  # Removed Unknown
+    # symptom_set = ['fever', 'cough', 'headache', 'fatigue', 'nausea']
+    # disease_set = ['Common Cold', 'Flu', 'Migraine', 'Gastroenteritis']  # Removed Unknown
     
-    diagnosis_rules = {
-        'Common Cold': ['cough', 'fever'],
-        'Flu': ['fever', 'cough', 'fatigue'],
-        'Migraine': ['headache', 'nausea'],
-        'Gastroenteritis': ['nausea', 'fatigue']
-    }
+    # diagnosis_rules = {
+    #     'Common Cold': ['cough', 'fever'],
+    #     'Flu': ['fever', 'cough', 'fatigue'],
+    #     'Migraine': ['headache', 'nausea'],
+    #     'Gastroenteritis': ['nausea', 'fatigue']
+    # }
     
     # Initialize the environment with the toy dataset
-    env = DiagnosisEnvironment(symptom_set, disease_set, diagnosis_rules, dataset_path='toy_dataset.json')
+    env = DiagnosisEnvironment(symptom_set, disease_set, diagnosis_rules, dataset_path='training_dataset.json')
     
     # ----------------------------
     # 2. Agent Initialization
@@ -95,4 +96,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

@@ -77,7 +77,7 @@ class ReasoningAgent(nn.Module):
         
         # Convert to probabilities
         disease_probs = F.softmax(disease_scores, dim=0)
-        print(f"Disease scores: {disease_scores}")
+        # print(f"Disease scores: {disease_scores}")
         
         # Expand for batch size
         disease_probs = disease_probs.unsqueeze(0).expand(batch_size, -1)

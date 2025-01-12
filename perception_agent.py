@@ -1,5 +1,7 @@
 import torch
 import torch.nn as nn
+from entmax import entmax15
+
 
 class PerceptionAgent(nn.Module):
     def __init__(self, input_size, hidden_size, output_size, num_heads=4, dropout=0.1):
@@ -56,7 +58,8 @@ class AdaptiveSparsityTransformer(nn.Module):
         # Adaptive sparsity parameters
         self.temperature = nn.Parameter(torch.ones(1))
         self.sparsity_threshold = nn.Parameter(torch.zeros(1))
-    
+
+
     def forward(self, x):
         # Add shape validation
         if x.dim() != 3:
@@ -76,14 +79,15 @@ class AdaptiveSparsityTransformer(nn.Module):
         
         # Compute attention scores
         scores = torch.matmul(q, k.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.head_dim).float())
-        
+        # probabilities = entmax15(scores, dim=0)  # 稀疏化权重
         # Apply adaptive sparsity
         sparse_mask = (scores > self.sparsity_threshold).float()
         scores = scores * sparse_mask
         scores = scores / self.temperature
         
         # Apply softmax and dropout
-        attn = torch.softmax(scores, dim=-1)
+        # attn = torch.softmax(scores, dim=-1)
+        attn = entmax15(scores, dim=-1)  # differentiable, automatically adapt the sparsity level based on the input
         attn = self.dropout(attn)
         
         # Compute output

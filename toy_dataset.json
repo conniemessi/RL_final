@@ -1,7 +1,157 @@
 [
     {
         "symptoms": [
+            0,
+            0,
             1,
+            1,
+            1
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            1,
+            0,
+            0
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            1,
+            1,
+            1
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            1,
+            1,
+            0
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            0,
+            1,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            1,
+            0,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            0,
+            0,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            0,
+            1,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            0,
+            0,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            0,
+            1,
+            0
+        ],
+        "disease": 0
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            0,
+            0,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            1,
+            0,
+            1
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            0,
+            0,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            0,
+            1,
+            0,
+            0,
+            0
+        ],
+        "disease": 0
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            0,
+            1,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            0,
             1,
             0,
             0,
@@ -23,17 +173,7 @@
         "symptoms": [
             1,
             1,
-            0,
             1,
-            0
-        ],
-        "disease": 1
-    },
-    {
-        "symptoms": [
-            1,
-            1,
-            0,
             1,
             0
         ],
@@ -44,58 +184,8 @@
             0,
             0,
             1,
-            0,
-            1
-        ],
-        "disease": 2
-    },
-    {
-        "symptoms": [
-            0,
-            0,
             1,
-            0,
-            1
-        ],
-        "disease": 2
-    },
-    {
-        "symptoms": [
-            0,
-            0,
-            0,
-            1,
-            1
-        ],
-        "disease": 3
-    },
-    {
-        "symptoms": [
-            0,
-            0,
-            0,
-            1,
-            1
-        ],
-        "disease": 3
-    },
-    {
-        "symptoms": [
-            1,
-            1,
-            1,
-            1,
-            1
-        ],
-        "disease": 1
-    },
-    {
-        "symptoms": [
-            1,
-            0,
-            1,
-            0,
-            1
+            0
         ],
         "disease": 2
     },
@@ -111,12 +201,152 @@
     },
     {
         "symptoms": [
+            0,
+            0,
+            1,
+            0,
+            0
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
             1,
             1,
-            1,
+            0,
             0,
             0
         ],
         "disease": 0
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            1,
+            1,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            0,
+            1,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            0,
+            1,
+            0,
+            1,
+            0
+        ],
+        "disease": 0
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            0,
+            1,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            1,
+            0,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            1,
+            0,
+            1
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
+            0,
+            1,
+            0,
+            1,
+            0
+        ],
+        "disease": 0
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            0,
+            1,
+            1
+        ],
+        "disease": 3
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            0,
+            1,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            0,
+            1,
+            0
+        ],
+        "disease": 0
+    },
+    {
+        "symptoms": [
+            1,
+            1,
+            0,
+            1,
+            0
+        ],
+        "disease": 1
+    },
+    {
+        "symptoms": [
+            0,
+            0,
+            1,
+            1,
+            1
+        ],
+        "disease": 2
+    },
+    {
+        "symptoms": [
+            1,
+            0,
+            1,
+            0,
+            1
+        ],
+        "disease": 2
     }
 ]
