@@ -58,6 +58,10 @@ class AdaptiveSparsityTransformer(nn.Module):
         # Adaptive sparsity parameters
         self.temperature = nn.Parameter(torch.ones(1))
         self.sparsity_threshold = nn.Parameter(torch.zeros(1))
+        
+        # Add gating layers
+        self.gate_linear = nn.Linear(hidden_size, hidden_size)
+        self.gate_norm = nn.LayerNorm(hidden_size)
 
 
     def forward(self, x):
@@ -90,7 +94,13 @@ class AdaptiveSparsityTransformer(nn.Module):
         attn = entmax15(scores, dim=-1)  # differentiable, automatically adapt the sparsity level based on the input
         attn = self.dropout(attn)
         
-        # Compute output
+        # Compute output with attention
         out = torch.matmul(attn, v)
         out = out.transpose(1, 2).contiguous().view(batch_size, seq_len, self.hidden_size)
-        return self.output_linear(out) 
+        out = self.output_linear(out)
+        
+        # Apply gating mechanism
+        gate = torch.sigmoid(self.gate_linear(out))  # Generate gates in [0,1]
+        out = self.gate_norm(out * gate)  # Apply gates and normalize
+        
+        return out

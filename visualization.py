@@ -6,9 +6,10 @@ import torch
 import networkx as nx
 
 class VisualizationManager:
-    def __init__(self, symptom_set, disease_set, window_size=100):
+    def __init__(self, symptom_set, disease_set, diagnosis_rules, window_size=100):
         self.symptom_set = symptom_set
         self.disease_set = disease_set
+        self.diagnosis_rules = diagnosis_rules
         self.window_size = window_size
         
         # Create index to disease name mapping
@@ -58,27 +59,39 @@ class VisualizationManager:
         self.ax_reward.set_ylabel('Reward')
     
     def setup_diagnosis_graph(self):
-        """Initialize the diagnosis graph structure"""
+        """Initialize the diagnosis graph structure with rule nodes"""
         self.G = nx.DiGraph()
         
-        # Add symptom nodes
+        # Add symptom nodes (left layer)
         for symptom in self.symptom_set:
             self.G.add_node(symptom, layer=0)
         
-        # Add disease nodes
+        # Add rule nodes (middle layer) - one rule per disease
+        self.rules = []
+        for disease_idx, disease in enumerate(self.disease_set):
+            rule_name = f'f_{disease_idx}'  # Just one rule per disease
+            self.G.add_node(rule_name, layer=1)
+            self.rules.append(rule_name)
+        
+        # Add disease nodes (right layer)
         for disease in self.disease_set:
-            self.G.add_node(disease, layer=1)
+            self.G.add_node(disease, layer=2)
         
         # Store node positions for consistent layout
         self.pos = {}
         
         # Position symptoms on the left
         for i, symptom in enumerate(self.symptom_set):
-            self.pos[symptom] = (-1, (len(self.symptom_set)-1)/2 - i)
+            self.pos[symptom] = (-2, (len(self.symptom_set)-1)/2 - i)
+        
+        # Position rules in the middle - one per disease
+        for i, rule in enumerate(self.rules):
+            y_pos = (len(self.disease_set)-1)/2 - i
+            self.pos[rule] = (0, y_pos)
         
         # Position diseases on the right
         for i, disease in enumerate(self.disease_set):
-            self.pos[disease] = (1, (len(self.disease_set)-1)/2 - i)
+            self.pos[disease] = (2, (len(self.disease_set)-1)/2 - i)
     
     def update_attention_matrix(self, attention_mask):
         """Update the attention matrix visualization"""
@@ -103,71 +116,113 @@ class VisualizationManager:
         # Rotate x-axis labels for better readability
         plt.setp(self.ax_attention.get_xticklabels(), rotation=45, ha='right')
     
-    def update_diagnosis_path(self, attention_mask, predicted_disease_idx, true_disease_idx, reward, current_symptoms):
-        """Update the diagnosis path visualization"""
+    def update_diagnosis_path(self, attention_mask, rule_weights, predicted_disease_idx, true_disease_idx, reward, current_symptoms):
+        """Update the diagnosis path visualization with rule nodes"""
         self.ax_path.clear()
         self.ax_path.set_title('Diagnosis Path')
         
-        # Convert disease indices to names
-        predicted_disease = self.idx_to_disease[predicted_disease_idx]
-        true_disease = self.idx_to_disease[true_disease_idx]
+        # Convert disease indices to names and ensure they're integers
+        predicted_disease = self.idx_to_disease[int(predicted_disease_idx)]
+        true_disease = self.idx_to_disease[int(true_disease_idx)]
         
         # Reset edges
         self.G.remove_edges_from(list(self.G.edges()))
         
-        # Get attention weights
+        # Get attention weights and rule weights
         attention_weights = attention_mask.detach().cpu().numpy()
-        # Add edges based on attention weights
-        for i, (symptom, weight) in enumerate(zip(self.symptom_set, attention_weights[0])):
-            # print(f"Symptom: {symptom}, Weight: {weight}")
-            if weight > 0.3:  # Only show strong connections
-                self.G.add_edge(symptom, predicted_disease, weight=float(weight))
+        rule_weights = rule_weights.detach().cpu().numpy()
         
-        # Draw the graph
-        # Draw all nodes in light blue first
-        nx.draw_networkx_nodes(self.G, self.pos, 
-                             node_color='lightblue',
-                             node_size=1500,
-                             ax=self.ax_path)
+        # Draw edges and nodes
+        for disease_idx, disease in enumerate(self.disease_set):
+            rule_name = f'f_{disease_idx}'
+            
+            # Draw edges from symptoms to rules (without weight labels)
+            for symptom in self.diagnosis_rules[disease]:
+                if symptom in self.symptom_set:
+                    symptom_idx = self.symptom_set.index(symptom)
+                    weight = float(attention_weights[0, symptom_idx])
+                    self.G.add_edge(symptom, rule_name, weight=weight)
+            
+            # Draw edge from rule to disease with weight
+            weight = float(rule_weights[disease_idx].mean())
+            self.G.add_edge(rule_name, disease, weight=weight)
+            
+            # Add weight text for rule-to-disease edge
+            start_pos = self.pos[rule_name]
+            end_pos = self.pos[disease]
+            mid_x = (start_pos[0] + end_pos[0]) / 2
+            mid_y = (start_pos[1] + end_pos[1]) / 2
+            self.ax_path.text(mid_x, mid_y, f'{weight:.2f}',
+                             bbox=dict(facecolor='white', edgecolor='none', alpha=0.7),
+                             ha='center', va='center', fontsize=8)
         
-        # Edges with varying width based on attention weights
+        # Draw edges
         edges = self.G.edges(data=True)
         if edges:
             weights = [d['weight'] for (u, v, d) in edges]
-            nx.draw_networkx_edges(self.G, self.pos, 
+            nx.draw_networkx_edges(self.G, self.pos,
                                  edge_color='gray',
-                                 width=[w * 3 for w in weights],
+                                 width=[w * 2 for w in weights],
                                  ax=self.ax_path)
         
-        # Add symptom labels on the left with present symptoms highlighted
-        for i, (symptom, pos) in enumerate(self.pos.items()):
-            if symptom in self.symptom_set:  # Only for symptoms
-                is_present = current_symptoms[i].item() == 1
-                color = 'red' if is_present else 'gray'
-                self.ax_path.text(pos[0] - 0.2, pos[1], 
-                                f"{symptom} ({'+' if is_present else '-'})", 
-                                fontsize=8, ha='right', va='center',
-                                color=color)
+        # Draw symptoms
+        nx.draw_networkx_nodes(self.G, self.pos,
+                              nodelist=self.symptom_set,
+                              node_color='lightblue',
+                              node_size=1000,
+                              ax=self.ax_path)
         
-        # Add disease labels on the right
-        for disease, pos in self.pos.items():
-            if disease in self.disease_set:  # Only for diseases
-                self.ax_path.text(pos[0] + 0.2, pos[1], disease, 
-                                fontsize=8, ha='left', va='center')
+        # Draw rules with weights inside
+        for rule in self.rules:
+            disease_idx = int(rule.split('_')[1])
+            weight = float(rule_weights[disease_idx].mean())
+            color = 'orange' if weight > 0.3 else 'lightgray'
+            
+            # Draw rule node
+            nx.draw_networkx_nodes(self.G, self.pos,
+                                 nodelist=[rule],
+                                 node_color=color,
+                                 node_size=500,
+                                 node_shape='o',
+                                 ax=self.ax_path)
+            
+            # Add weight text inside rule node
+            pos = self.pos[rule]
+            self.ax_path.text(pos[0], pos[1], f'{weight:.2f}',
+                             ha='center', va='center',
+                             fontsize=8,
+                             bbox=dict(facecolor='white', edgecolor='none', alpha=0.7))
         
-        # Draw nodes without default labels
-        nx.draw_networkx_nodes(self.G, self.pos, 
-                             node_color='lightblue',
-                             node_size=1500,
-                             ax=self.ax_path)
+        # Draw diseases
+        nx.draw_networkx_nodes(self.G, self.pos,
+                              nodelist=self.disease_set,
+                              node_color='lightblue',
+                              node_size=1000,
+                              ax=self.ax_path)
         
         # Highlight predicted disease
         color = 'green' if predicted_disease == true_disease else 'red'
         nx.draw_networkx_nodes(self.G, self.pos,
-                             nodelist=[predicted_disease],
-                             node_color=color,
-                             node_size=1500,
-                             ax=self.ax_path)
+                              nodelist=[predicted_disease],
+                              node_color=color,
+                              node_size=1000,
+                              ax=self.ax_path)
+        
+        # Add symptom labels
+        for symptom in self.symptom_set:
+            pos = self.pos[symptom]
+            is_present = current_symptoms[self.symptom_set.index(symptom)].item() == 1
+            color = 'red' if is_present else 'gray'
+            self.ax_path.text(pos[0] - 0.2, pos[1], 
+                             f"{symptom} ({'+' if is_present else '-'})", 
+                             fontsize=8, ha='right', va='center',
+                             color=color)
+        
+        # Add disease labels
+        for disease in self.disease_set:
+            pos = self.pos[disease]
+            self.ax_path.text(pos[0] + 0.2, pos[1], disease, 
+                             fontsize=8, ha='left', va='center')
         
         # Add legend showing current case details
         present_symptoms = [self.symptom_set[i] for i, val in enumerate(current_symptoms) if val.item() == 1]
@@ -216,12 +271,12 @@ class VisualizationManager:
         self.ax_reward.set_xlabel('Episode')
         self.ax_reward.set_ylabel('Reward')
     
-    def update_visualization(self, episode, attention_mask, predicted_disease, true_disease, 
-                           reward, current_symptoms, perception_loss=None, reasoning_loss=None):
+    def update_visualization(self, episode, attention_mask, rule_weights, predicted_disease, true_disease, 
+                            reward, current_symptoms, perception_loss=None, reasoning_loss=None):
         """Update all visualizations"""
         self.update_attention_matrix(attention_mask)
-        self.update_diagnosis_path(attention_mask, predicted_disease, true_disease, reward, current_symptoms)
-        self.update_metrics(episode, reward, perception_loss, reasoning_loss)
+        self.update_diagnosis_path(attention_mask, rule_weights, predicted_disease, true_disease, reward, current_symptoms)
+        # self.update_metrics(episode, reward, perception_loss, reasoning_loss)
         
         plt.tight_layout()
         plt.draw()

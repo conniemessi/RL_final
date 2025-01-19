@@ -5,7 +5,7 @@ from reasoning_agent import ReasoningAgent
 from environment import DiagnosisEnvironment
 from training import train_two_stage_rl
 from torch.optim.lr_scheduler import LambdaLR
-from training_dataset import symptom_set, disease_set, diagnosis_rules
+from toy_dataset import symptom_set, disease_set, diagnosis_rules
 
 def main():
     # ----------------------------
@@ -22,7 +22,7 @@ def main():
     # }
     
     # Initialize the environment with the toy dataset
-    env = DiagnosisEnvironment(symptom_set, disease_set, diagnosis_rules, dataset_path='training_dataset.json')
+    env = DiagnosisEnvironment(symptom_set, disease_set, diagnosis_rules, dataset_path='toy_dataset.json')
     
     # ----------------------------
     # 2. Agent Initialization
@@ -30,6 +30,7 @@ def main():
     # Parameters
     n_symptoms = len(symptom_set)  # 5
     n_diseases = len(disease_set)  # 4
+
     hidden_size = 128
     temperature = 1.0
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -82,8 +83,7 @@ def main():
         reasoning_agent=reasoning_agent,
         optimizer=optimizer,
         num_episodes=num_episodes,
-        batch_size=batch_size,
-        beta=0.5  # Adjust this to control KL term importance
+        # beta=0.5  # Adjust this to control KL term importance
     )
     
     # ----------------------------

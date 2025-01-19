@@ -18,6 +18,9 @@ class ReasoningAgent(nn.Module):
         # Rule embeddings (for each disease's rules)
         self.rule_embedding = nn.Embedding(num_diseases * num_symptoms, hidden_size)
         
+        # Learnable rule selection mask
+        self.rule_mask = nn.Parameter(torch.randn(num_diseases, num_symptoms))
+        
         # Initialize embeddings
         self.init_embeddings()
         
@@ -50,13 +53,6 @@ class ReasoningAgent(nn.Module):
         return W
 
     def forward(self, masked_symptoms):
-        """
-        Predict disease based on masked symptoms using rule matching
-        Args:
-            masked_symptoms: tensor of shape [batch_size, num_symptoms]
-        Returns:
-            disease_probs: tensor of shape [batch_size, num_diseases]
-        """
         batch_size = masked_symptoms.shape[0]
         
         # Get matching weights
@@ -65,8 +61,15 @@ class ReasoningAgent(nn.Module):
         # Reshape W to separate disease rules
         W = W.view(self.num_diseases, self.num_symptoms, -1)  # [num_diseases, num_symptoms, num_symptoms]
         
+        # Apply learnable rule selection mask
+        rule_selection = torch.sigmoid(self.rule_mask)  # [num_diseases, num_symptoms]
+        rule_weights = rule_selection.mean(dim=-1)
+        W = W * rule_selection.unsqueeze(-1)  # Apply mask to rules
+        
+        # Take the mean over the last dimension to get [num_diseases, num_symptoms]
+        # rule_weights = W.mean(dim=-1)  # [num_diseases, num_symptoms]
+        
         # Compute φ_f(O_masked) = ∏_{j∈O_masked} w_{ij}v_j
-        # v_j is 1 if symptom j is in O_masked, 0 otherwise
         v = masked_symptoms.unsqueeze(1)  # [batch_size, 1, num_symptoms]
         
         # Compute rule satisfaction scores
@@ -74,12 +77,11 @@ class ReasoningAgent(nn.Module):
         
         # Sum over rules for each disease
         disease_scores = torch.sum(rule_scores, dim=1)  # [num_diseases]
-        
+
         # Convert to probabilities
         disease_probs = F.softmax(disease_scores, dim=0)
-        # print(f"Disease scores: {disease_scores}")
         
         # Expand for batch size
         disease_probs = disease_probs.unsqueeze(0).expand(batch_size, -1)
         
-        return disease_probs
+        return disease_probs, rule_weights

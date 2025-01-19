@@ -1,7 +1,7 @@
 # Define comprehensive symptom and disease sets based on Training.csv
 import json
 import random
-
+import pandas as pd
 
 symptom_set = ['abdominal_pain', 'acidity', 'burning_micturition', 'chills', 'continuous_sneezing', 
                'cough', 'indigestion', 'itching', 'loss_of_appetite', 'nausea', 'nodal_skin_eruptions', 
@@ -54,10 +54,10 @@ diagnosis_rules = {
 
 # Add more diseases with their rules...
 # (You can continue adding more diseases and their rules following the same pattern)
-used_symptoms = set()
-for disease in diagnosis_rules:
-    for rule in diagnosis_rules[disease]:
-        used_symptoms.update(rule)
+# used_symptoms = set()
+# for disease in diagnosis_rules:
+#     for rule in diagnosis_rules[disease]:
+#         used_symptoms.update(rule)
 
 def symptoms_to_vector(symptoms):
     return [1 if sym in symptoms else 0 for sym in symptom_set]
@@ -110,6 +110,31 @@ complex_cases = [
 ]
 
 toy_dataset.extend(complex_cases)
+
+
+# Read the Training.csv file
+df = pd.read_csv('Training.csv')
+
+# Filter for our specific diseases
+df_filtered = df[df['prognosis'].isin(disease_set)]
+
+# Create dataset
+toy_dataset = []
+
+# Process each row in the filtered dataset
+for _, row in df_filtered.iterrows():
+    # Get symptoms that are present (value == 1)
+    symptoms = [col for col in df.columns[:-1] if row[col] == 1]
+    
+    # Convert symptoms to vector
+    symptom_vector = [1 if sym in symptoms else 0 for sym in symptom_set]
+    
+    # Add to dataset
+    toy_dataset.append({
+        'symptoms': symptom_vector,
+        'disease': disease_set.index(row['prognosis'])
+    })
+
 
 # Shuffle the dataset
 random.shuffle(toy_dataset)
